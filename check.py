@@ -115,4 +115,5 @@ except Exception as e:
 
 # descriptions, examples, phons = getInforOneWord(link_word)
 # print([word, descriptions, examples, phons])
+
 driver.close()

@@ -133,7 +133,7 @@ for ultag in soup.find_all('ul', {'class': 'top-g'}):
                                    examples[0], examples[1], examples[2],
                                    phons[0], phons[1], te)
 
-            print("----- "+str(indexStr)+" ------")
+            print("----- " + str(indexStr) + " ------")
             # print("-----------")
         except Exception as e:
             err = int(err)+int(1)
