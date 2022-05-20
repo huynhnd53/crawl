@@ -27,30 +27,60 @@ link_oxford = "https://www.oxfordlearnersdictionaries.com/wordlists/oxford3000-5
 # for link in link_descriptions:
 # i (1-3001) (3000 words)
 
-te = 0
-err = 0
 
 
-def WriterExcel(worksheet, word, wordtype, sound1, sound2,
-                descriptions1, descriptions2, descriptions3,
-                examples_text1, examples_text2, examples_text3,
-                phons1, phons2, indexS):
+
+def WriterExcel(worksheet, word, wordtype, sounds, descriptions, examples_text, phons, indexS):
     # workbook = xlsxwriter.Workbook('hello.xlsx')
     # worksheet = workbook.add_worksheet()
+    
+
+
     indexS = int(indexS)+int(1)
     try:
-        worksheet.write('A'+str(indexS), str(word))
-        worksheet.write('B'+str(indexS), str(wordtype))
-        worksheet.write('C'+str(indexS), str(sound1))
-        worksheet.write('D'+str(indexS), str(sound2))
-        worksheet.write('E'+str(indexS), str(descriptions1))
-        worksheet.write('F'+str(indexS), str(descriptions2))
-        worksheet.write('G'+str(indexS), str(descriptions3))
-        worksheet.write('H'+str(indexS), str(examples_text1))
-        worksheet.write('I'+str(indexS), str(examples_text2))
-        worksheet.write('J'+str(indexS), str(examples_text3))
-        worksheet.write('K'+str(indexS), str(phons1))
-        worksheet.write('L'+str(indexS), str(phons2))
+        worksheet.write('A'+str(indexS), str(word)) #for WORD
+        worksheet.write('B'+str(indexS), str(wordtype)) #for WORDTYPE
+        
+        xS = 1
+        for itemS in sounds:
+            if xS == 1:
+                worksheet.write('D'+str(indexS), str(itemS)) #for SOUND EN-UK
+            elif xS == 2:
+                worksheet.write('F'+str(indexS), str(itemS)) #for SOUND EN-US
+            print("sounds" + str(xS) + ": " + itemS)
+            xS = int(xS) + int(1)
+
+        xP = 1
+        for itemP in phons:
+            if xP == 1:
+                worksheet.write('C'+str(indexS), str(itemP)) #for PHONS EN-UK
+            elif xP == 2:
+                worksheet.write('E'+str(indexS), str(itemP)) #for PHONS EN-US
+            print("phons" + str(xP) + ": " + itemP)
+            xP = int(xP) + int(1)
+
+        xD = 1
+        for itemD in descriptions:
+            if xD == 1:
+                worksheet.write('G'+str(indexS), str(itemD)) #for DESCRIPTION 1
+            elif xD == 2:
+                worksheet.write('H'+str(indexS), str(itemD)) #for DESCRIPTION 2
+            elif xD == 3:
+                worksheet.write('I'+str(indexS), str(itemD)) #for DESCRIPTION 3
+            print("descriptions" + str(xD) + ": " + itemD)
+            xD = int(xD) + int(1)
+
+        xEx = 1
+        for itemEx in examples_text:
+            if xEx == 1:
+                worksheet.write('J'+str(indexS), str(itemEx)) #for EXAMPLE 1
+            elif xEx == 2:
+                worksheet.write('K'+str(indexS), str(itemEx)) #for EXAMPLE 2
+            elif xEx == 3:
+                worksheet.write('L'+str(indexS), str(itemEx)) #for EXAMPLE 3
+            print("examples_text" + str(xEx) + ": " + itemEx)
+            xEx = int(xEx) + int(1)
+
         worksheet.write('M'+str(indexS), str(indexS))
         # workbook.close()
         return indexS
@@ -78,17 +108,20 @@ def getInforOneWord(link_word):
         examples_text = []
         phons = []
         sound = []
-        a = 0
 
+        countIdxDes = 0
         for item in descriptions_ele:
-            # descriptions_text.append("mean " + str(a)+": " + item.text)
-            # examples_text.append("ex " + str(a)+": " + item.text)
             descriptions_text.append(item.text)
-            examples_text.append(item.text)
-            if a == 2:
+            if countIdxDes == 2:
                 break
+            countIdxDes = int(countIdxDes) + int(1)
 
-            a = int(a) + int(1)
+        countIdxEx = 0
+        for item in examples_ele:
+            examples_text.append(item.text)
+            if countIdxEx == 2:
+                break
+            countIdxEx = int(countIdxEx) + int(1)
 
         # phons.append("phons_br: " + str(phons_br))
         # phons.append("phone_n_am: " + str(phons__n_am))
@@ -108,9 +141,26 @@ def getInforOneWord(link_word):
 
 
 driver.get(link_oxford)
+te = 1
+err = 0
+
 soup = BeautifulSoup(driver.page_source, 'html.parser')
-workbook = xlsxwriter.Workbook('hello-2.xlsx')
+workbook = xlsxwriter.Workbook('hello.xlsx')
 worksheet = workbook.add_worksheet()
+# Add title of collumn                   
+worksheet.write('A1', str("WORD"))
+worksheet.write('B1', str("WORDTYPE"))
+worksheet.write('C1', str("PHONS EN-UK"))
+worksheet.write('D1', str("SOUND EN-UK"))
+worksheet.write('E1', str("PHONS EN-US"))
+worksheet.write('F1', str("SOUND EN-US"))
+worksheet.write('G1', str("DESCRIPTION 1"))
+worksheet.write('H1', str("DESCRIPTION 2"))
+worksheet.write('I1', str("DESCRIPTION 3"))
+worksheet.write('J1', str("EXAMPLE 1"))
+worksheet.write('K1', str("EXAMPLE 2"))
+worksheet.write('L1', str("EXAMPLE 3"))
+worksheet.write('M1', str("Index"))
 
 for ultag in soup.find_all('ul', {'class': 'top-g'}):
     for litag in ultag.find_all('li'):
@@ -128,11 +178,7 @@ for ultag in soup.find_all('ul', {'class': 'top-g'}):
             print("index crr: "+str(int(te)+int(1)))
             print("Num Error: "+str(err))
 
-            indexStr = WriterExcel(worksheet, word, wordtype, sound[0], sound[1],
-                                   descriptions[0], descriptions[1], descriptions[2],
-                                   examples[0], examples[1], examples[2],
-                                   phons[0], phons[1], te)
-
+            indexStr = WriterExcel(worksheet, word, wordtype, sound, descriptions ,examples, phons, te)
             print("----- " + str(indexStr) + " ------")
             # print("-----------")
         except Exception as e:
@@ -141,10 +187,17 @@ for ultag in soup.find_all('ul', {'class': 'top-g'}):
             pass
 
         te = int(te)+int(1)
-        if te == 10:
+        
+        #crawl number of word
+        if te == 25:
             workbook.close()
             print("QUIT")
             quit()
+
+#Crawl all         
+#workbook.close()
+
+
 # word = driver.find_element_by_xpath(
 #     '//*[@id="wordlistsContentPanel"]/ul/li[{}]'.format(i)).get_attribute('data-hw')
 # link_word = driver.find_element_by_xpath(
